@@ -20,6 +20,14 @@ elseif(NOT APPLE)
     set(PLUGIN_FORMATS VST3)
 endif()
 
+if(MSVC)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDebug")
+    add_compile_options(
+        $<$<CONFIG:Debug>:/MTd>
+        $<$<CONFIG:Release>:/MT>
+    )
+endif()
+
 # Define user library path for plugin installation (macOS-specific)
 if(APPLE)
     set(USER_LIBRARY_DIR "$ENV{HOME}/Library/Audio/Plug-Ins")
@@ -91,7 +99,11 @@ set(ONNXRUNTIME_DIR "/Users/admin/Documents/repos/onnxruntime-static")
 
 target_include_directories(MLPitchDetector PRIVATE ${ONNXRUNTIME_DIR}/include)
 
-target_link_libraries(MLPitchDetector PRIVATE "${ONNXRUNTIME_DIR}/lib/libonnxruntime.a")
+if(APPLE)
+    target_link_libraries(CounterTune PRIVATE "${ONNXRUNTIME_DIR}/lib/libonnxruntime.a")
+elseif(NOT APPLE)
+    target_link_libraries(CounterTune PRIVATE "${ONNXRUNTIME_DIR}/lib/onnxruntime.lib")
+endif()
 
 # Link everything
 target_link_libraries(MLPitchDetector PRIVATE 
